@@ -11,9 +11,8 @@ final int BOARD_HEIGHT = SQUARE_HEIGHT * 8;
 final String IMG_PATH = "processing/pieces/";
 String g_currentFile = null;
 String g_currentRank = null;
-String g_selectedFile = null;
-String g_selectedRank = null;
 Square g_currentSquare = null;
+Square g_selectedSquare = null;
 ChessPiece g_currentPiece = null;
 //Pfont font;
 boolean bCanCastleShort = true, bCanCastleLong = true;
@@ -37,7 +36,10 @@ void draw(){
 }
 
 void mouseClicked(){
-  
+  if (g_selectedSquare != null && !g_selectedSquare.empty()){
+    g_currentSquare.placePiece(g_selectedSquare.piece);
+  }
+  g_selectedSquare = g_currentSquare;
 }
 
 void mousePressed(){
@@ -103,12 +105,12 @@ void squareHover(){
   if (g_currentSquare != null){
     g_currentSquare.highlight = false;
   }
-  g_currentSquare = chessBoard.files.get(g_currentFile).get(g_currentRank);
+  g_currentSquare = chessBoard.getSquare(g_currentFile, g_currentRank);
   g_currentSquare.highlight = true;
 }
 
 void mouseOut(){
-  chessBoard.files.get(g_currentFile).get(g_currentRank).highlight = false;
+  chessBoard.getSquare(g_currentFile, g_currentRank).highlight = false;
   g_currentFile = null;
   g_currentRank = null;
   g_currentSquare = null;
@@ -926,12 +928,14 @@ class Pawn extends Piece {
 
   boolean placeOn(Square square){
     if (this.currentSquare != null){
-        this.calcSquares();
-        if (this.attackingSquares.get(square) == null){
-         return false;
-        }
-      this.firstMove = false;
-      this.currentSquare.piece = null;
+      this.calcSquares();
+      if (this.attackingSquares.get(square) == null){
+       return false;
+      }
+      if (this.currentSquare != square){
+        this.firstMove = false;
+        this.currentSquare.piece = null;
+      }
     }
     this.currentSquare = square;
     this.currentFile = square.file;
