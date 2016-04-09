@@ -35,18 +35,18 @@ void draw(){
   }
 }
 
-void mouseClicked(){
+/*void mouseClicked(){
   if (g_selectedSquare != null && !g_selectedSquare.empty()){
     g_currentSquare.placePiece(g_selectedSquare.piece);
   }
-  g_selectedSquare = g_currentSquare;
-}
+}*/
 
 void mousePressed(){
   if (!g_currentSquare.empty()){
     g_currentPiece = g_currentSquare.piece;
     g_currentPiece.followMouse = true;
   }
+  g_selectedSquare = g_currentSquare;
 }
 
 void mouseReleased(){
@@ -292,7 +292,7 @@ class Square {
 
     rect(this.x, this.y, this.width, this.height);
 
-    if (this.highlight){
+    if (this.highlight || this.equals(g_selectedSquare)){
       fill(255, 255, 102, 50);
       rect(this.x, this.y, this.width, this.height);
     }

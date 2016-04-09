@@ -6,18 +6,6 @@
 
 /* Toggle Styles */
 
-#wrapper {
-    padding-left: 0;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-}
-
-#wrapper.toggled {
-    padding-left: 250px;
-}
-
 #sidebar-wrapper {
     padding:0;
     z-index: 1000;
@@ -38,17 +26,6 @@
     width: 250px;
 }
 
-#page-content-wrapper {
-    width: 100%;
-    position: absolute;
-    padding: 15px;
-}
-
-#wrapper.toggled #page-content-wrapper {
-    position: absolute;
-    margin-right: -250px;
-}
-
 /* Sidebar Styles */
 
 .sidebar-nav {
@@ -58,18 +35,37 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    overflow: none;
+    overflow: hidden;
 }
 
-.sidebar-nav li {
+.sidebar-nav li{
     padding:0;
-    height:125px;
+    height:150px;
     width:125px;
-    /*text-indent: 20px;
-    line-height: 40px;*/
 }
 
-.sidebar-nav li a {
+.sb-label {
+    display: block;
+    padding-bottom: 11px;
+    color: #fff;
+    opacity: 0;
+
+    transition: opacity 0.3s ease-in-out;
+}
+
+.hover{
+    opacity: .55;
+}
+
+.select{
+    opacity: 1;
+}
+
+.bold{
+    font-weight:bold;
+}
+
+.sidebar-nav .sb-button {
     margin: auto;
     font-size: 20pt;
     width:100px;
@@ -147,7 +143,7 @@
     opacity: 0;
 }
 
-@media(min-width:768px) {
+/*@media(min-width:768px) {
     #wrapper {
         padding-left: 250px;
     }
@@ -173,7 +169,39 @@
         position: relative;
         margin-right: 0;
     }
+}*/
+
+@media(max-width: 800px){
+    #sidebar-wrapper {
+        display: none;
+    }
 }
+
+#wrapper {
+        padding-left: 250px;
+    }
+
+    #wrapper.toggled {
+        padding-left: 0;
+    }
+
+    #sidebar-wrapper {
+        width: 250px;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        width: 0;
+    }
+
+    #page-content-wrapper {
+        padding: 20px;
+        position: relative;
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        position: relative;
+        margin-right: 0;
+    }
 
 /* Toggle menu button styles */
 #menu-toggle{

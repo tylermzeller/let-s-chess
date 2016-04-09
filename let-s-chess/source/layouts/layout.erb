@@ -18,43 +18,13 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <%= stylesheet_link_tag "normalize", "all", "simple-sidebar", "hamburger.min"%>
-    <%= javascript_include_tag  "all" %>
   </head>
   <body class="<%= page_classes %>">
 
   <div id="wrapper" class="toggled">
 
         <!-- Sidebar -->
-        <div id="sidebar-wrapper" class="container-fluid">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="#">
-                        Zuuby <span class="glyphicon glyphicon-knight"></span>
-                    </a>
-                </li>
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-th"></span></a>
-                </li>
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-wrench"></span></a>
-                </li>
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-dashboard"></span></a>
-                </li>
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-thumbs-up"></span></a>
-                </li>
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-link"></span></a>
-                </li>
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-home"></span></a>
-                </li class="col-md-6">
-                <li class="col-md-6">
-                    <a href="#"><span class="glyphicon glyphicon-envelope"></span></a>
-                </li>
-            </ul>
-        </div>
+        <%= partial "partials/sidebar" %>
         <!-- End Sidebar -->
 
         <!-- Page Content -->
@@ -77,6 +47,8 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <!-- Latest compiled and minified Bootstrap JS -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <%= javascript_include_tag  "all" %>
 
     <!-- Menu Toggle Script -->
     <script>
