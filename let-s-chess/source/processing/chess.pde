@@ -4,17 +4,22 @@
 String[] FILES = {"a", "b", "c", "d", "e", "f", "g", "h"};
 String[] RANKS = {"1", "2", "3", "4", "5", "6", "7", "8"};
 ChessBoard chessBoard = null;
-final int SQUARE_WIDTH = 100;
-final int SQUARE_HEIGHT = 100;
+final int SQUARE_WIDTH = 75;
+final int SQUARE_HEIGHT = 75;
 final int BOARD_WIDTH = SQUARE_WIDTH * 8;
 final int BOARD_HEIGHT = SQUARE_HEIGHT * 8;
 final String IMG_PATH = "processing/pieces/";
+
 String g_currentFile = null;
 String g_currentRank = null;
 Square g_currentSquare = null;
 Square g_selectedSquare = null;
 ChessPiece g_currentPiece = null;
+ArrayList<Square> g_attackingSquares = null;
 //Pfont font;
+
+boolean playerIsWhite = true;
+boolean playerColorChosen = false;
 boolean bCanCastleShort = true, bCanCastleLong = true;
 boolean wCanCastleShort = true, wCanCastleLong = true;
 /* #################### NATIVE PROCESSING START #################### */
@@ -29,17 +34,33 @@ void setup() {
 }
 
 void draw(){
-  chessBoard.draw();
-  if (g_currentPiece != null){
-    g_currentPiece.draw();
+  // Take out for actual player choice
+  chooseColor(true);
+
+  // Don't draw until a color has been chosen for the player
+  if (playerColorChosen){
+    chessBoard.draw();
+    if (g_currentPiece != null){
+      g_currentPiece.draw();
+    }
   }
+  
 }
 
-/*void mouseClicked(){
-  if (g_selectedSquare != null && !g_selectedSquare.empty()){
+void chooseColor(boolean white){
+  playerIsWhite = white;
+  playerColorChosen = true;
+}
+
+void mouseClicked(){
+  /*if (g_selectedSquare != null && !g_selectedSquare.empty()){
     g_currentSquare.placePiece(g_selectedSquare.piece);
+  }*/
+
+  if (!g_currentSquare.empty()){ // There is a piece on this square
+    // g_currentSquare.piece.calcSquares(); // Calculate its attacking squares
   }
-}*/
+}
 
 void mousePressed(){
   if (!g_currentSquare.empty()){
@@ -387,8 +408,8 @@ class King extends Piece {
   }
 
   void calcSquares(){
-    this.attackingSquares.clear();
-    this.attackingSquares.put(this.currentSquare, true);
+    g_attackingSquares.clear();
+    g_attackingSquares.add(this.currentSquare);
     if (this.color == "w"){
       if (wCanCastleShort){
         // Add two right square
@@ -428,7 +449,7 @@ class King extends Piece {
       String rank = this.currentRank;
       Square left = chessBoard.getSquare(file, rank);
       if (left.empty() || left.piece.color != this.color){
-        this.attackingSquares.put(left, true);
+        g_attackingSquares.add(left);
       }
       
       // Not on bottom edge
@@ -437,7 +458,7 @@ class King extends Piece {
         rank = RANKS[rankIndex - 1];
         Square leftBottom = chessBoard.getSquare(file, rank);
         if (leftBottom.empty() || leftBottom.piece.color != this.color){
-          this.attackingSquares.put(leftBottom, true);
+          g_attackingSquares.add(leftBottom);
         }
       }
       // Not on top edge
@@ -446,7 +467,7 @@ class King extends Piece {
         rank = RANKS[rankIndex + 1];
         Square leftTop = chessBoard.getSquare(file, rank);
         if (leftTop.empty() || leftTop.piece.color != this.color){
-          this.attackingSquares.put(leftTop, true);
+          g_attackingSquares.add(leftTop);
         }
       }
     }
@@ -457,7 +478,7 @@ class King extends Piece {
       String rank = RANKS[rankIndex - 1];
       Square bottom = chessBoard.getSquare(file, rank);
       if (bottom.empty() || bottom.piece.color != this.color){
-        this.attackingSquares.put(bottom, true);
+        g_attackingSquares.add(bottom);
       }
     }
     // Get direct top square from king
@@ -466,7 +487,7 @@ class King extends Piece {
       String rank = RANKS[rankIndex + 1];
       Square top = chessBoard.getSquare(file, rank);
       if (top.empty() || top.piece.color != this.color){
-        this.attackingSquares.put(top, true);
+        g_attackingSquares.add(top);
       }
     }
 
@@ -477,7 +498,7 @@ class King extends Piece {
       String rank = this.currentRank;
       Square right = chessBoard.getSquare(file, rank);
       if (right.empty() || right.piece.color != this.color){
-        this.attackingSquares.put(right, true);
+        g_attackingSquares.add(right);
       }
       
       // Not on bottom edge
@@ -486,7 +507,7 @@ class King extends Piece {
         rank = RANKS[rankIndex - 1];
         Square rightBottom = chessBoard.getSquare(file, rank);
         if (rightBottom.empty() || rightBottom.piece.color != this.color){
-          this.attackingSquares.put(rightBottom, true);
+          g_attackingSquares.add(rightBottom);
         }
       }
       // Not on top edge
@@ -495,7 +516,7 @@ class King extends Piece {
         rank = RANKS[rankIndex + 1];
         Square rightTop = chessBoard.getSquare(file, rank);
         if (rightTop.empty() || rightTop.piece.color != this.color){
-          this.attackingSquares.put(rightTop, true);
+          g_attackingSquares.add(rightTop);
         }
       }
     }

@@ -9,6 +9,7 @@
 
 # Ignore the build directory
 /build
+config.rb
 
 # Ignore cache
 /.sass-cache
