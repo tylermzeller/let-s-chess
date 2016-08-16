@@ -1,0 +1,15 @@
+.chessboard {
+  margin: auto;
+}
+
+.chessboard-1 {
+  width: 600px;
+}
+
+.chessboard-2 {
+  width: 300px;
+}
+
+.chessboard-3, .chessboard-4 {
+  width: 150px;
+}
