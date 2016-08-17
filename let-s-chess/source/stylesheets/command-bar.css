@@ -1,32 +1,28 @@
 #command-wrapper {
     padding:0;
-    z-index: 1000;
-    position: fixed;
-    right:1px;
+    margin:0;
+    right: 0px;
     top:33%;
     width: 5%;
+    min-width: 50px;
+    height: auto;
     overflow: visible;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
 }
 
 /* Sidebar Styles */
 
 .command-nav {
-    background: #000;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    margin: 0;
-    padding: 20px 0px;
-    list-style: none;
-    overflow: hidden;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+  border: 1px solid white;
+  background: #000;
+  width: 100%;
+  top: 0;
+  margin: 0;
+  padding: 20px 0px;
+  list-style: none;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }
 
 .command-nav li {
@@ -37,7 +33,6 @@
     outline: none;
     margin: auto;
     font-size: 15pt;
-    width:50%;
     display:inline-block;
     text-decoration: none;
     color: #999999;

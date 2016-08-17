@@ -151,11 +151,11 @@ document.addEventListener('DOMContentLoaded', function(e) {
   for (var i = 0; i < floaties.length; i++){
     var floater = new floaty.floaty(floaties.item(i), i);
 
-    // floater.element.style.top = (i * 50) + 'px';
-    // var r = Math.floor((Math.random() * 255) + 1);
-    // var g = Math.floor((Math.random() * 255) + 1);
-    // var b = Math.floor((Math.random() * 255) + 1);
-    // floater.element.style.backgroundColor = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+    floater.element.style.top = (i * 50) + 'px';
+    var r = Math.floor((Math.random() * 255) + 1);
+    var g = Math.floor((Math.random() * 255) + 1);
+    var b = Math.floor((Math.random() * 255) + 1);
+    floater.element.style.backgroundColor = 'rgb(' + r + ', ' + g + ', ' + b + ')';
 
     floater.addEventListener('mouseover', floaty.makeMouseoverCallback(floater)); // END floater.addEventListener
 
