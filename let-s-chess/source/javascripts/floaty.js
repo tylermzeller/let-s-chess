@@ -1,118 +1,146 @@
-var mouse_over = false;
-var mouse_clicked = false;
-var snapback_interval = null;
-var x = 0, y = 0;
-var prevX, prevY;
+var floaty = floaty || {};
 
-document.addEventListener('DOMContentLoaded', function(e) {
-   var floater = document.getElementById('floaty');
-   updatePosition(floater);
+floaty.pixelToInt = function(measurement){
+  var strings = measurement.split('px');
+  return parseFloat(strings[0]);
+};
 
-   floater.addEventListener('mouseover', function(e){
-     mouse_over = true;
-   });
+floaty.makeMouseoverCallback = function(floater){
+  return function(){
+    floater.mouse_over = true;
+  };
+};
 
-   floater.addEventListener('mousedown', function(e){
-     mouse_clicked = true;
+floaty.makeMousedownCallback = function(floater){
+  return function(){
+    floater.mouse_clicked = true;
+    floater.addClass('active');
+  };
+};
 
-     addClass(floater, 'active');
-   });
+floaty.makeMouseupCallback = function(floater){
+  return function(){
+    floater.mouse_clicked = false;
+    floater.removeClass('active');
+    var direction = floater.calcMinDirection();
+    floater.snapback_interval = setInterval(floater.snapback, 10, floater, direction);
+  };
+};
 
-   floater.addEventListener('mouseup', function(e){
-     mouse_clicked = false;
+floaty.makeMousemoveCallback = function(floater){
+  return function(e){
+    e.preventDefault();
+    if (floater.mouse_clicked) {
+      floater.updatePosition(e.clientX, e.clientY);
+    }
+  };
+};
 
-     removeClass(floater, 'active');
+floaty.floaty = function(dom_object, id){
+  this.id = id;
+  this.element = dom_object;
+  this.mouse_over = false;
+  this.mouse_click = false;
+  this.snapback_interval = null;
+};
 
-    var direction = calcMinDirection(this);
-    snapback_interval = setInterval(snapback, 10, this, direction);
-   });
+floaty.floaty.prototype.updatePosition = function(mouseX, mouseY) {
+  this.element.style.left = mouseX - (this.element.clientWidth / 2) + 'px';
+  this.element.style.top = mouseY - (this.element.clientHeight / 2) + 'px';
+};
 
-   floater.addEventListener('mouseout', function(e){
-   });
+floaty.floaty.prototype.addEventListener = function(eventName, callback){
+  this.element.addEventListener(eventName, callback);
+};
 
-   floater.addEventListener('mousemove', function(e){
-     e.preventDefault();
-     if (mouse_clicked){
-       floater.style.left = e.clientX - (floater.clientWidth / 2) + 'px';
-       floater.style.top = e.clientY - (floater.clientHeight / 2) + 'px';
+floaty.floaty.prototype.removeClass = function(classname){
+  var re = new RegExp('(?:^|\\s)' + classname + '(?!\\S)', 'g');
+  this.element.className = this.element.className.replace( re , '' );
+};
 
-       updatePosition(floater);
-     }
-   });
-});
+floaty.floaty.prototype.addClass = function(classname) {
+  this.element.className += ' ' + classname;
+};
 
-function snapback(element, direction){
+floaty.floaty.prototype.calcMinDirection = function(){
+  var x = floaty.pixelToInt(this.element.style.left);
+  var y = floaty.pixelToInt(this.element.style.top);
 
-  var left = pixelToInt(element.style.left);
-  var top = pixelToInt(element.style.top);
-  var bottom = window.innerHeight - pixelToInt(element.style.top);
-  var right = window.innerWidth - pixelToInt(element.style.left);
-
-  var floaty_width = element.clientWidth;
-  var floaty_height = element.clientHeight;
-
-  if ((left <= 0.5) || (top <= 0.5) || (top + 50 >= window.innerHeight - 1) || (left + 50 >= window.innerWidth - 1) || mouse_clicked){
-    clearInterval(snapback_interval);
-  }
-
-  if (direction == 'left'){
-    x -= x / 10;
-    element.style.left = x + 'px';
-  }
-
-  if (direction == 'right') {
-    x += (window.innerWidth - 50 - x) / 10;
-    element.style.left = x + 'px';
-  }
-
-  if (direction == 'top') {
-    y -= y / 10;
-    element.style.top = y + 'px';
-  }
-
-  if (direction == 'bottom'){
-    y += (window.innerHeight - 50 - y) / 10;
-    element.style.top = y + 'px';
-  }
-}
-
-function calcMinDirection(element) {
-  var min = pixelToInt(element.style.left);
+  var min = x;
   var min_dir = 'left';
 
-  if (window.innerWidth - pixelToInt(element.style.left) < min) {
-    min = window.innerWidth - pixelToInt(element.style.left);
+  if (window.innerWidth - x < min) {
+    min = window.innerWidth - x;
     min_dir = 'right';
   }
 
-  if (pixelToInt(element.style.top) < 50){
+  if (y < 50){
     min_dir = 'top';
   }
 
-  if (window.innerHeight - pixelToInt(element.style.top) < 100) {
+  if (window.innerHeight - y < 100) {
     min_dir = 'bottom';
   }
 
   return min_dir;
 }
 
-function pixelToInt(measurement){
-  var strings = measurement.split('px');
-  return parseInt(strings[0]);
+floaty.floaty.prototype.snapback = function(floater, direction) {
+  var x = floaty.pixelToInt(floater.element.style.left);
+  var y = floaty.pixelToInt(floater.element.style.top);
+
+  var width = floater.element.clientWidth;
+  var height = floater.element.clientHeight;
+
+  if ((x <= 0.5 && x >= -0.5)
+  || (y <= 0.5 && y >= -0.5)
+  || (y + height >= window.innerHeight - 0.5 && y + height <= window.innerHeight + 0.5)
+  || (x + width >= window.innerWidth - 0.5 && x + width <= window.innerWidth + 0.5)
+  || floater.mouse_clicked){
+    clearInterval(floater.snapback_interval);
+  }
+
+  if (direction == 'left'){
+    x -= x / 10;
+    floater.element.style.left = x + 'px';
+  }
+
+  if (direction == 'right') {
+    x -= (x + width - window.innerWidth) / 10;
+    floater.element.style.left = x + 'px';
+  }
+
+  if (direction == 'top') {
+    y -= y / 10;
+    floater.element.style.top = y + 'px';
+  }
+
+  if (direction == 'bottom'){
+    y -= (y + height - window.innerHeight) / 10;
+    floater.element.style.top = y + 'px';
+  }
 }
 
-function updatePosition(element){
-  prevX = x;
-  prevY = y;
-  x = pixelToInt(element.style.left);
-  y = pixelToInt(element.style.top);
-}
+document.addEventListener('DOMContentLoaded', function(e) {
+  var floaties = document.getElementsByClassName('floaty');
 
-function addClass(element, classname){
-  element.className += ' ' + classname;
-}
+  for (var i = 0; i < floaties.length; i++){
+    var floater = new floaty.floaty(floaties.item(i), i);
 
-function removeClass(element, classname) {
-  var re = new RegExp('(?:^|\\s)' + classname + '(?!\\S)', 'g');
-  element.className = element.className.replace( re , '' );
-}
+    floater.element.style.top = (i * 50) + 'px';
+    var r = Math.floor((Math.random() * 255) + 1);
+    var g = Math.floor((Math.random() * 255) + 1);
+    var b = Math.floor((Math.random() * 255) + 1);
+    floater.element.style.backgroundColor = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+
+    floater.addEventListener('mouseover', floaty.makeMouseoverCallback(floater)); // END floater.addEventListener
+
+    floater.addEventListener('mousedown', floaty.makeMousedownCallback(floater)); // END floater.addEventListener
+
+    floater.addEventListener('mouseup', floaty.makeMouseupCallback(floater)); // END floater.addEventListener
+
+    floater.addEventListener('mousemove', floaty.makeMousemoveCallback(floater)); // END floater.addEventListener
+
+  } // END for loop
+
+}); // END document.addEventListener
