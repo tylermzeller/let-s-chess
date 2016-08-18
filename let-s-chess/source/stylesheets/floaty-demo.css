@@ -2,5 +2,28 @@
 div.floaty {
   width: 50px;
   height: 50px;
+  left: 0;
   border-radius: 100%;
+  -webkit-transition: width 0.5s ease, height 0.5s ease, transform 0.5s ease;
+  -moz-transition: width 0.5s ease, height 0.5s ease, transform 0.5s ease;
+  -o-transition: width 0.5s ease, height 0.5s ease, transform 0.5s ease;
+  transition: width 0.5s ease, height 0.5s ease, transform 0.5s ease;
+}
+
+div.floaty.big {
+  width: 75px;
+  height: 75px;
+}
+
+div.floaty.center {
+  width: 200px;
+  height: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50%;
+  transform: translateY(-50%);
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }

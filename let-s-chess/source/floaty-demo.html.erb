@@ -6,17 +6,12 @@ title: Floaty Demo
   Floaty.js
 </h1>
 
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
-<div class="floaty"></div>
+<div id="hello"></div>
 
 <script type="text/javascript" src="javascripts/floaty-demo.js"></script>
+<%= stylesheet_link_tag "floaty-demo" %>
+
+<script>
+
+  floaty.addFloaty('hello');
+</script>

@@ -1,19 +1,56 @@
 #command-wrapper {
-    padding:0;
-    margin:0;
-    right: 0px;
-    top:33%;
-    width: 5%;
-    min-width: 50px;
-    height: auto;
-    overflow: visible;
+  background: #000;
+  border: 1px solid white;
+  padding:0;
+  margin:0;
+  right: 0px;
+  top:33%;
+  width: 5%;
+  min-width: 50px;
+  min-height: 50px;
+  max-height: 200px;
+  height: auto;
+  overflow: visible;
+
+  -webkit-transition: width 0.5s ease, max-height 0.5s ease;
+  -moz-transition: width 0.5s ease, max-height 0.5s ease;
+  -o-transition: width 0.5s ease, max-height 0.5s ease;
+  transition: width 0.5s ease, max-height 0.5s ease;
+}
+
+
+#command-wrapper.shrink {
+}
+
+#command-wrapper.shrink .command-nav {
+  padding: 5px;
+}
+
+#command-wrapper.shrink .command-nav li {
+  padding: 0;
+  max-height: 0;
+}
+
+#command-wrapper.shrink .command-nav li.open {
+  max-height: 50px;
+  padding: 5px;
+}
+
+#command-wrapper.shrink .command-nav .command-button {
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
+}
+
+#command-wrapper.shrink .command-nav .command-button.openFloaty {
+  opacity: 1;
+  pointer-events: all;
+  cursor: pointer;
 }
 
 /* Sidebar Styles */
 
 .command-nav {
-  border: 1px solid white;
-  background: #000;
   width: 100%;
   top: 0;
   margin: 0;
@@ -26,24 +63,34 @@
 }
 
 .command-nav li {
-    padding:5px;
+  max-height: 40px;
+  padding:5px;
+  transition: max-height 0.3s ease;
 }
 
 .command-nav .command-button {
-    outline: none;
-    margin: auto;
-    font-size: 15pt;
-    display:inline-block;
-    text-decoration: none;
-    color: #999999;
-    box-shadow: 0 0px 0px #000;
+  outline: none;
+  margin: auto;
+  font-size: 15pt;
+  display:inline-block;
+  text-decoration: none;
+  color: #999999;
+  transition: all 0.3s ease-in-out;
+}
 
-    transition: all 0.3s ease-in-out;
+.command-nav .command-button.openFloaty {
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
+}
+
+.command-nav li.open {
+  padding: 0;
+  max-height: 0;
 }
 
 .command-nav li a:hover {
     text-decoration: none;
     color: #fff;
     transform: scale(1.2, 1.2);
-
 }

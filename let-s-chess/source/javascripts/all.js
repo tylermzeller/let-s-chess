@@ -13,4 +13,5 @@ $(document).ready(function(e){
     label.removeClass('select');
     labels.removeClass('hover');
   });
+
 });

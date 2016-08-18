@@ -33,3 +33,32 @@ title: Let's Chess
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
 <script src="javascripts/chess.js"></script>
 <script type="text/javascript" src="javascripts/floaty.js"></script>
+
+<script>
+
+  $('#command-wrapper .closeFloaty').on('click', function(e){
+    var command = $('#command-wrapper');
+    if (!command.hasClass('shrink')){
+      command.addClass('shrink');
+    }
+  });
+
+  $('#command-wrapper .openFloaty').on('click', function(e){
+    var command = $('#command-wrapper');
+    if (command.hasClass('shrink')){
+      command.removeClass('shrink');
+    }
+  });
+
+  floaty.addFloaty('command-wrapper', {
+    onActivate: function(floaty){
+
+        // if (floaty.hasClass('shrink')){
+        //   floaty.removeClass('shrink');
+        // } else {
+        //   floaty.addClass('shrink');
+        // }
+
+    }
+  });
+</script>
