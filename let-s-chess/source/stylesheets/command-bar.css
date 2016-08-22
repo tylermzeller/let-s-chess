@@ -6,34 +6,34 @@
   right: 0px;
   top:33%;
   width: 5%;
-  min-width: 50px;
-  min-height: 50px;
-  max-height: 200px;
-  height: auto;
+  height: 202px;
   overflow: visible;
 
-  -webkit-transition: width 0.5s ease, max-height 0.5s ease;
-  -moz-transition: width 0.5s ease, max-height 0.5s ease;
-  -o-transition: width 0.5s ease, max-height 0.5s ease;
-  transition: width 0.5s ease, max-height 0.5s ease;
+  -webkit-transition: width 0.5s ease, height 0.5s ease;
+  -moz-transition: width 0.5s ease, height 0.5s ease;
+  -o-transition: width 0.5s ease, height 0.5s ease;
+  transition: width 0.5s ease, height 0.5s ease;
 }
 
 
 #command-wrapper.shrink {
+  height: 52px;
+  width: 50px;
 }
 
 #command-wrapper.shrink .command-nav {
-  padding: 5px;
+  padding: 0;
 }
 
 #command-wrapper.shrink .command-nav li {
   padding: 0;
-  max-height: 0;
+  height: 0;
 }
 
-#command-wrapper.shrink .command-nav li.open {
-  max-height: 50px;
-  padding: 5px;
+#command-wrapper.shrink .command-nav li.openFloaty {
+  height: 50px;
+  padding: 0;
+  line-height: 50px;
 }
 
 #command-wrapper.shrink .command-nav .command-button {
@@ -46,6 +46,7 @@
   opacity: 1;
   pointer-events: all;
   cursor: pointer;
+  transition: opacity 0.3s ease;
 }
 
 /* Sidebar Styles */
@@ -63,9 +64,9 @@
 }
 
 .command-nav li {
-  max-height: 40px;
+  height: 40px;
   padding:5px;
-  transition: max-height 0.3s ease;
+  transition: height 0.3s ease;
 }
 
 .command-nav .command-button {
@@ -75,18 +76,20 @@
   display:inline-block;
   text-decoration: none;
   color: #999999;
-  transition: all 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .command-nav .command-button.openFloaty {
   opacity: 0;
   pointer-events: none;
   cursor: default;
+  transition: none;
 }
 
-.command-nav li.open {
+.command-nav li.openFloaty {
   padding: 0;
-  max-height: 0;
+  height: 0;
+  transition:none;
 }
 
 .command-nav li a:hover {
