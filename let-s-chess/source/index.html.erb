@@ -21,19 +21,123 @@ title: Let's Chess
 
 <!--<script src="processing/processing.min.js"></script>-->
 
-<div id="board1" class="chessboard chessboard-1"></div>
+<!--<div id="board" class="chessboard chessboard-1"></div>
 <p>Status: <span id="status"></span></p>
 <p>FEN: <span id="fen"></span></p>
-<p>PGN: <span id="pgn"></span></p>
+<p>PGN: <span id="pgn"></span></p> -->
 
+<!-- *************** Begin game html ************************-->
+
+<div class="row">
+
+  <!-- FIRST COLUMN -->
+  <div class="col-sm-7 col-md-6">
+
+    <!-- CLOCKS -->
+    <!--<span class="h3" id="time1">0:05:00</span>-->
+
+    <!-- BOARD -->
+    <div id="board" class="chessboard"></div>
+
+    <!-- CLOCKS -->
+    <!--<span class="h3" id="time2">0:05:00</span>-->
+    <hr>
+    <div id="engineStatus">...</div>
+  </div>
+
+  <!-- SECOND COLUMN -->
+  <div id="chess-dash" class="col-sm-5 col-md-6">
+    <!-- BEGIN MOVES -->
+    <!--<h3>Moves:</h3>
+    <div id="pgn"></div>
+    <hr>-->
+    <form class="form-horizontal">
+
+      <!-- BEGIN BASE TIME -->
+      <!--<div class="form-group">
+        <label for="timeBase" class="control-label col-xs-4 col-sm-6 col-md-4">Base time (min)</label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <input type="number" class="form-control" id="timeBase" value="5">
+        </div>
+      </div>-->
+      <!-- END BASE TIME -->
+
+      <!-- BEGIN INC TIME -->
+      <!--<div class="form-group">
+        <label for="timeInc" class="control-label col-xs-4 col-sm-6 col-md-4">Increment (sec)</label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <input type="number" class="form-control" id="timeInc" value="2">
+        </div>
+      </div>-->
+      <!-- END BASE TIME -->
+
+      <div class="form-group">
+        <label for="skillLevel" class="control-label col-xs-4 col-sm-6 col-md-4">Skill Level (1-20)</label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <input type="number" class="form-control" id="skillLevel" value="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="color" class="control-label col-xs-4 col-sm-6 col-md-4">I play</label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-primary chess-btn active" id="color-white"><input type="radio" name="color">W</label>
+            <label class="btn btn-primary chess-btn" id="color-black"><input type="radio" name="color">B</label>
+            <label class="btn btn-primary chess-btn" id="color-random"><input type="radio" name="color">R</label>
+          </div>
+        </div>
+      </div>
+      <!-- BEGIN SHOW SCORE -->
+      <!--<div class="form-group">
+        <label for="showScore" class="control-label col-xs-4 col-sm-6 col-md-4">Show score</label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <input type="checkbox" class="" id="showScore" checked>
+        </div>
+      </div>-->
+      <!-- END SHOW SCORE -->
+      <div class="form-group">
+        <label for="color" class="control-label col-xs-4 col-sm-6 col-md-4"></label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <button type="button" class="btn btn-primary" onclick="newGame()">New Game</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="color" class="control-label col-xs-4 col-sm-6 col-md-4">Promote to</label>
+        <div class="col-xs-4 col-sm-6 col-md-4">
+          <select id="promote" class="selectpicker form-control">
+            <option value=q selected>Queen</option>
+            <option value=r>Rook</option>
+            <option value=b>Bishop</option>
+            <option value=n>Knight</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <!-- EVAL -->
+    <!-- <h5>Evaluation</h5>
+    <pre id=evaluation></pre>-->
+</div>
+
+<!-- *************** End game html **************************-->
+
+<!-- Chess style assets -->
 <link rel="stylesheet" href="stylesheets/chessboard-0.3.0.min.css">
 <link rel="stylesheet" href="stylesheets/chessboard.css">
 
+<!-- Chess script assets -->
 <script src="javascripts/chessboard-0.3.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
-<script src="javascripts/chess.js"></script>
+
+<script src="javascripts/event_manager.js"></script>
+<script src="javascripts/moves.js"></script>
+<!-- Engine game script -->
+<script src="javascripts/enginegame.js"></script>
+
+<!-- Floaty script -->
 <script type="text/javascript" src="javascripts/floaty.js"></script>
 
+<!-- Command bar interactions -->
 <script>
 
   $('#command-wrapper .closeFloaty').on('click', function(e){
@@ -55,4 +159,62 @@ title: Let's Chess
 
     }
   });
+</script>
+
+<script>
+  var wait_for_script;
+  var newGame = function (){};
+
+  /// We can load Stockfish.js via Web Workers or directly via a <script> tag.
+  /// Web Workers are better since they don't block the UI, but they are not always avaiable.
+  (function fix_workers()
+      {
+        var script_tag;
+        /// Does the environment support web workers?  If not, include stockfish.js directly.
+        ///NOTE: Since web workers don't work when a page is loaded from the local system, we have to fake it there too. (Take that security measures!)
+        if (!Worker || (location && location.protocol === "file:")) {
+          var script_tag  = document.createElement("script");
+          script_tag.type ="text/javascript";
+          script_tag.src  = "stockfish.js";
+          script_tag.onload = init;
+          document.getElementsByTagName("head")[0].appendChild(script_tag);
+          wait_for_script = true;
+        }
+      }());
+
+  function init()
+  {
+    var game = engineGame();
+
+    newGame = function() {
+        //var baseTime = parseFloat($('#timeBase').val()) * 60;
+        //var inc = parseFloat($('#timeInc').val());
+        var skill = parseInt($('#skillLevel').val());
+        game.reset();
+        //game.setTime(baseTime, inc);
+        game.setSkillLevel(skill);
+
+        var player_color = 'white';
+        if ($('#color-black').hasClass('active')){
+          player_color = 'black';
+        } else if ($('#color-random').hasClass('active')){
+          player_color = Math.random() > 0.5 ? 'white' : 'black';
+        }
+        game.setPlayerColor(player_color);
+        game.setDisplayScore();
+        game.start();
+    }
+
+    document.getElementById("skillLevel").addEventListener("change", function ()
+    {
+        game.setSkillLevel(parseInt(this.value, 10));
+    });
+
+    newGame();
+  }
+
+  /// If we load Stockfish.js via a <script> tag, we need to wait until it loads.
+  if (!wait_for_script) {
+    document.addEventListener("DOMContentLoaded", init);
+  }
 </script>
