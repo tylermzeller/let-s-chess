@@ -81,9 +81,22 @@ title: Let's Chess
         <label for="color" class="control-label col-xs-4 col-sm-6 col-md-4">I play</label>
         <div class="col-xs-4 col-sm-6 col-md-4">
           <div class="btn-group" data-toggle="buttons">
-            <label class="btn btn-primary chess-btn active" id="color-white"><input type="radio" name="color">W</label>
-            <label class="btn btn-primary chess-btn" id="color-black"><input type="radio" name="color">B</label>
-            <label class="btn btn-primary chess-btn" id="color-random"><input type="radio" name="color">R</label>
+            <label class="btn btn-primary chess-btn active tt" id="color-white">
+              <input type="radio" name="color">W</input>
+              <span class="tooltiptext">You play white</span>
+            </label>
+            <label class="btn btn-primary chess-btn tt" id="color-black">
+              <input type="radio" name="color">B</input>
+              <span class="tooltiptext">You play black</span>
+            </label>
+            <label class="btn btn-primary chess-btn tt" id="color-random">
+              <input type="radio" name="color">R</input>
+              <span class="tooltiptext">You play a random side</span>
+            </label>
+            <label class="btn btn-primary chess-btn tt" id="color-computer">
+              <input type="radio" name="color">C</input>
+              <span class="tooltiptext">Let the computer play for you</span>
+            </label>
           </div>
         </div>
       </div>
@@ -191,16 +204,19 @@ title: Let's Chess
         //var inc = parseFloat($('#timeInc').val());
         var skill = parseInt($('#skillLevel').val());
         game.reset();
+        var player = 'white';
+        if ($('#color-black').hasClass('active')){
+          player = 'black';
+        } else if ($('#color-random').hasClass('active')){
+          player = Math.random() > 0.5 ? 'white' : 'black';
+        } else if ($('#color-computer').hasClass('active')){
+          player = 'computer';
+        }
+        game.setPlayer(player);
         //game.setTime(baseTime, inc);
         game.setSkillLevel(skill);
 
-        var player_color = 'white';
-        if ($('#color-black').hasClass('active')){
-          player_color = 'black';
-        } else if ($('#color-random').hasClass('active')){
-          player_color = Math.random() > 0.5 ? 'white' : 'black';
-        }
-        game.setPlayerColor(player_color);
+
         game.setDisplayScore();
         game.start();
     }

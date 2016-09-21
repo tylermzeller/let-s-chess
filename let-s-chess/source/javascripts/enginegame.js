@@ -23,6 +23,7 @@ function engineGame(options) {
     var isEngineRunning = false;
     //var evaluation_el = document.getElementById("evaluation");
     var announced_game_over;
+    var eval_w = 0.0, eval_b = 0.0;
     // do not pick up pieces if the game is over
     // only pick up pieces for White
     var onDragStart = function(source, piece, position, orientation) {
@@ -32,6 +33,23 @@ function engineGame(options) {
             return false;
         }
     };
+
+    function get_eval(score, turn, type){
+      var display_score;
+      if (type === "cp") {
+          display_score = (score / 100).toFixed(2);
+      } else if (score === 0) {
+          if (turn === "w") {
+              display_score = "0-1";
+          } else {
+              display_score = "1-0";
+          }
+      } else {
+          display_score = "#" + score;
+      }
+
+      return display_score;
+    }
 
     evaler.onmessage = function(event) {
         var line;
@@ -56,7 +74,9 @@ function engineGame(options) {
     };
 
     engine.onmessage = function(event) {
-        var line;
+        var line,
+            ply = moves_history.length;
+        //console.log("black " + ply);
 
         if (event && typeof event === "object") {
             line = event.data;
@@ -75,7 +95,7 @@ function engineGame(options) {
                 isEngineRunning = false;
                 var engine_move = game.move({from: match[1], to: match[2], promotion: match[3]});
                 prepareMove(engine_move);
-                uciCmd("eval", evaler)
+                //uciCmd("eval", evaler)
                 //evaluation_el.textContent = "";
                 //uciCmd("eval");
             /// Is it sending feedback?
@@ -89,9 +109,13 @@ function engineGame(options) {
                 /// Is it measuring in centipawns?
                 if(match[1] == 'cp') {
                     engineStatus.score = (score / 100.0).toFixed(2);
+                    eval_b = get_eval(score, 'w', 'cp');
+                    //moves_manager.update_eval({ply: ply, type: 'cp', score: score, turn: 'w'});
                 /// Did it find a mate?
                 } else if(match[1] == 'mate') {
                     engineStatus.score = 'Mate in ' + Math.abs(score);
+                    eval_b = get_eval(Math.abs(score), 'w');
+                    //moves_manager.update_eval({ply: ply, score: Math.abs(score), turn: 'w'});
                 }
 
                 /// Is the score bounded?
@@ -102,6 +126,55 @@ function engineGame(options) {
         }
         displayStatus();
     };
+
+    function on_message(event){
+      var line,
+          ply = moves_history.length;
+      console.log("white " + ply);
+
+      if (event && typeof event === "object") {
+          line = event.data;
+      } else {
+          line = event;
+      }
+      //console.log("Reply: " + line)
+      if(line === 'uciok' || line === 'readyok') {
+        return;
+      } else {
+          var match = line.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
+          /// Did the AI move?
+          if(match) {
+              isEngineRunning = false;
+              var engine_move = game.move({from: match[1], to: match[2], promotion: match[3]});
+              prepareMove(engine_move);
+              //uciCmd("eval", evaler)
+          /// Is it sending feedback?
+        } else if(match = line.match(/^info .*\bdepth (\d+) .*\bnps (\d+)/)) {
+            engineStatus.search = 'Depth: ' + match[1] + ' Nps: ' + match[2];
+        }
+
+        /// Is it sending feed back with a score?
+        if(match = line.match(/^info .*\bscore (\w+) (-?\d+)/)) {
+            var score = parseInt(match[2]) * (game.turn() == 'w' ? 1 : -1);
+            /// Is it measuring in centipawns?
+            if(match[1] == 'cp') {
+                engineStatus.score = (score / 100.0).toFixed(2);
+                eval_w = get_eval(score, 'b', 'cp');
+                //moves_manager.update_eval({ply: ply, type: 'cp', score: score, turn: 'b'});
+            /// Did it find a mate?
+            } else if(match[1] == 'mate') {
+                engineStatus.score = 'Mate in ' + Math.abs(score);
+                eval_w = get_eval(Math.abs(score), 'b');
+                //moves_manager.update_eval({ply: ply, score: Math.abs(score), turn: 'b'});
+            }
+
+            /// Is the score bounded?
+            if(match = line.match(/\b(upper|lower)bound\b/)) {
+                engineStatus.score = ((match[1] == 'upper') == (game.turn() == 'w') ? '<= ' : '>= ') + engineStatus.score
+            }
+        }
+      }
+    }
 
     function uciCmd(cmd, which) {
         //console.log("UCI: " + cmd);
@@ -191,8 +264,7 @@ function engineGame(options) {
         clockTick();
     }*/
 
-    function get_moves()
-    {
+    function get_moves(){
         var moves = '';
         var history = game.history({verbose: true});
 
@@ -210,25 +282,44 @@ function engineGame(options) {
           // append move.san to move list
           moves_history.push({move: move.san, turn: move.color, pos: 'position fen ' + game.fen(), color: move.color});
           var ply = moves_history.length;
-          moves_manager.add_move({color: move.color, san: move.san, time: '' /*moves_history[ply].move_time*/, ply: ply - 1, scoll_to_bottom: true});
+          if (game.in_checkmate()){
+            if (move.color === 'w'){
+              eval_w = '1-0';
+            } else {
+              eval_b = '0-1';
+            }
+          }
+          moves_manager.add_move({color: move.color, san: move.san, time: '', eval: move.color === 'w' ? eval_w: eval_b, ply: ply - 1, scoll_to_bottom: true});
         }
         //$('#pgn').text(game.pgn());
         board.position(game.fen());
         //updateClock();
         var turn = game.turn() === 'w' ? 'white' : 'black';
         if(!game.game_over()) {
-            if(turn != playerColor) {
-                uciCmd('position startpos moves' + get_moves());
-                uciCmd('position startpos moves' + get_moves(), evaler);
-                //evaluation_el.textContent = "";
-                uciCmd("eval", evaler);
+            if(turn == 'white' && playerColor === 'computer'){
+              uciCmd('position startpos moves' + get_moves(), engine_other);
+              //uciCmd('position startpos moves' + get_moves(), evaler);
+              //evaluation_el.textContent = "";
+              //uciCmd("eval", evaler);
 
-                //if (time && time.wtime) {
-                //    uciCmd("go " + (time.depth ? "depth " + time.depth : "") + " wtime " + time.wtime + " winc " + time.winc + " btime " + time.btime + " binc " + time.binc);
-                //} else {
-                uciCmd("go " + (time.depth ? "depth " + time.depth : ""));
-                //}
-                isEngineRunning = true;
+              //if (time && time.wtime) {
+              //    uciCmd("go " + (time.depth ? "depth " + time.depth : "") + " wtime " + time.wtime + " winc " + time.winc + " btime " + time.btime + " binc " + time.binc);
+              //} else {
+              uciCmd("go " + (time.depth ? "depth " + (time.depth) : ""), engine_other);
+              //}
+              isEngineRunning = true;
+            } else if (turn != playerColor) {
+              uciCmd('position startpos moves' + get_moves());
+              //uciCmd('position startpos moves' + get_moves(), evaler);
+              //evaluation_el.textContent = "";
+              //uciCmd("eval", evaler);
+
+              //if (time && time.wtime) {
+              //    uciCmd("go " + (time.depth ? "depth " + time.depth : "") + " wtime " + time.wtime + " winc " + time.winc + " btime " + time.btime + " binc " + time.binc);
+              //} else {
+              uciCmd("go " + (time.depth ? "depth " + time.depth : ""));
+              //}
+              isEngineRunning = true;
             }
             // if(game.history().length >= 2 && !time.depth && !time.nodes) {
             //     startClock();
@@ -282,12 +373,23 @@ function engineGame(options) {
             uciCmd('setoption name Contempt value 0');
             //uciCmd('setoption name Skill Level value 20');
             this.setSkillLevel(1);
-            uciCmd('setoption name King Safety value 0'); /// Agressive 100 (it's now symetric)
+            //uciCmd('setoption name King Safety value 0'); /// Agressive 100 (it's now symetric)
         },
         loadPgn: function(pgn) { game.load_pgn(pgn); },
-        setPlayerColor: function(color) {
-            playerColor = color;
-            board.orientation(playerColor);
+        setPlayer: function(player) {
+            playerColor = player;
+            if (player === 'white' || player === 'black') {
+              board.orientation(playerColor);
+              if (engine_other){
+                engine_other.terminate();
+                engine_other = undefined;
+              }
+            } else {
+              board.orientation('white');
+              engine_other = new Worker('javascripts/stockfish.js');
+              engine_other.onmessage = on_message;
+            }
+
         },
         setSkillLevel: function(skill) {
             var max_err,
@@ -315,16 +417,21 @@ function engineGame(options) {
             time.depth = skill;
             //}
 
-            uciCmd('setoption name Skill Level value ' + skill);
+            uciCmd('setoption name Skill Level value 18');
+            uciCmd('setoption name Contempt value 100');
+            if (engine_other){
+              uciCmd('setoption name Skill Level value 18', engine_other);
+              uciCmd('setoption name Contempt value 0', engine_other);
+            }
 
             ///NOTE: Stockfish level 20 does not make errors (intentially), so these numbers have no effect on level 20.
             /// Level 0 starts at 1
-            err_prob = Math.round(5);
+            //err_prob = Math.round(5);
             /// Level 0 starts at 10
-            max_err = Math.round((20 - skill) / 4);
+            //max_err = Math.round((20 - skill) / 4);
 
-            uciCmd('setoption name Skill Level Maximum Error value ' + max_err);
-            uciCmd('setoption name Skill Level Probability value ' + err_prob);
+            uciCmd('setoption name Skill Level Maximum Error value 2');
+            //uciCmd('setoption name Skill Level Probability value ' + err_prob);
         },
         setTime: function(baseTime, inc) {
             time = { wtime: baseTime * 1000, btime: baseTime * 1000, winc: inc * 1000, binc: inc * 1000 };
@@ -347,6 +454,11 @@ function engineGame(options) {
         start: function() {
             uciCmd('ucinewgame');
             uciCmd('isready');
+
+            if (engine_other){
+              uciCmd('ucinewgame', engine_other);
+              uciCmd('isready', engine_other);
+            }
             engineStatus.engineReady = false;
             engineStatus.search = null;
             //moves_history = [{turn: 'w', pos: 'position fen rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'}];

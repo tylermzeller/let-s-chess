@@ -91,7 +91,7 @@ function make_moves(parent, height_parent){
             id: options.id,
             num_click: options.num_click,
             san_el:  $(document.createElement('div')).addClass('move-cell move-san move' + options.color + ' move-row' + even_odd + clickable_cell).text(clean_san(options.san)), //G.cde("div", {c: "moveCell moveSAN move"  + options.color + " moveRow" + even_odd + clickable_cell, t: clean_san(options.san)}, {click: options.onclick}),
-            eval_el: $(document.createElement('div')).addClass('move-cell move-eval move' + options.color + ' move-row' + even_odd).text('\u00a0'),//G.cde("div", {c: "moveCell moveEval move" + options.color + " moveRow" + even_odd + clickable_cell, t: "\u00a0"}, {click: options.onclick}), /// \u00a0 is &nbsp;
+            eval_el: $(document.createElement('div')).addClass('move-cell move-eval move' + options.color + ' move-row' + even_odd).text(options.eval),//G.cde("div", {c: "moveCell moveEval move" + options.color + " moveRow" + even_odd + clickable_cell, t: "\u00a0"}, {click: options.onclick}), /// \u00a0 is &nbsp;
             time_el: $(document.createElement('div')).addClass('move-cell move-time move' + options.color + ' move-row' + even_odd).text(typeof options.time === 'number' ? format_move_time(options.time) : '\u00a0')//G.cde("div", {c: "moveCell moveTime move" + options.color + " moveRow" + even_odd + clickable_cell, t: typeof options.time === "number" ? format_move_time(options.time) : "\u00a0"}, {click: options.onclick}),
         };
 
@@ -144,7 +144,7 @@ function make_moves(parent, height_parent){
 
                 rows[cur_row].placeholders = placeholders;
             }
-            //debugger;
+
             if (!rows[cur_row]) {
                 need_to_add_placeholders = rows.length === 0;
                 clickable_cell = move_data.num_click ? " move-click" : "";
@@ -162,7 +162,7 @@ function make_moves(parent, height_parent){
             } else if (rows[cur_row].placeholders) {
                 rows[cur_row].placeholders.forEach(function (el){
                     if (el) {
-                        el.remove();
+                        el.remove(); // el is JQuery object
                     }
                 });
                 delete rows[cur_row].placeholders;
@@ -196,7 +196,6 @@ function make_moves(parent, height_parent){
         });
 
         if (scoll_to_bottom) {
-          console.log(container[0].scrollTop);
           container[0].scrollTop = container[0].scrollHeight;
         } else if (scroll_to_el) {
             scroll_to_row(scroll_to_el);
@@ -231,12 +230,16 @@ function make_moves(parent, height_parent){
     }
 
     function update_eval(options){
-      console.log('eval updated');
         var move_data,
             display_score;
 
+        if (options.turn === 'b'){
+          console.log(plys[options.ply - 2]);
+        }
+
         if (typeof options.ply !== "undefined") {
             move_data = plys[options.ply - 1];
+
         } else if (typeof options.id !== "undefined") {
             move_data = get_move_data_by_id(options.id);
         }
@@ -289,8 +292,6 @@ function make_moves(parent, height_parent){
         //NOTE: We need to hide this for a moment to see what the height of the cell should be.
         //container_elm.style.display = "none";
         cell_box = height_parent[0].getBoundingClientRect();
-        console.log(height_parent[0]);
-        console.log(container[0]);
         container_elm.style.display = old_display;
         container_elm.style.height = "300px";//(cell_box.height - this_box.top) + "px";
 

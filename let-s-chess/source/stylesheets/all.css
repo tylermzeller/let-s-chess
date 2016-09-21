@@ -13,3 +13,31 @@ h1 {
   text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
   margin: 0;
 }
+
+/* Tooltip container */
+.tt {
+    /*border-bottom: 1px dotted black; If you want dots under the hoverable text*/
+}
+
+/* Tooltip text */
+.tt .tooltiptext {
+    top: -100%;
+    left: 50%;
+    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    visibility: hidden;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 5px;
+    border-radius: 6px;
+    opacity: .75;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tt:hover .tooltiptext {
+    visibility: visible;
+}
